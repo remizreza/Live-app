@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Commodities Live Dashboard</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <header>
+        <h1>Commodities Live Dashboard</h1>
+        <p>Live rates and latest headlines powered by Commodities-API.</p>
+      </header>
+
+      <section class="panel controls">
+        <div>
+          <label for="baseCurrency">Base currency</label>
+          <input id="baseCurrency" value="USD" maxlength="3" />
+        </div>
+        <button id="refreshBtn">Refresh now</button>
+        <p class="meta" id="lastUpdated">Last updated: never</p>
+      </section>
+
+      <section class="panel">
+        <h2>Live Rates</h2>
+        <div id="rates" class="cards"></div>
+      </section>
+
+      <section class="panel">
+        <h2>Latest News</h2>
+        <ul id="newsList" class="news-list"></ul>
+      </section>
+
+      <section class="panel">
+        <h2>Available Symbols</h2>
+        <div id="symbols" class="symbol-grid"></div>
+      </section>
+    </main>
+
+    <template id="rateCardTemplate">
+      <article class="card">
+        <h3 class="symbol"></h3>
+        <p class="value"></p>
+      </article>
+    </template>
+
+    <script src="app.js" type="module"></script>
+  </body>
+</html>
