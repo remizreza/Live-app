@@ -1,0 +1,20 @@
+const { fetchFromCommodities, normalizeSymbols, normalizeUpper, sendJson } = require('./_utils');
+
+module.exports = async function handler(req, res) {
+  if (req.method !== 'GET') {
+    return sendJson(res, 405, { success: false, error: 'Method not allowed' });
+  }
+
+  const base = normalizeUpper(req.query.base);
+  const symbols = normalizeSymbols(req.query.symbols);
+
+  try {
+    const data = await fetchFromCommodities('latest', { base, symbols });
+    return sendJson(res, 200, data);
+  } catch (error) {
+    return sendJson(res, error.status || 500, {
+      success: false,
+      error: error.message,
+    });
+  }
+};
