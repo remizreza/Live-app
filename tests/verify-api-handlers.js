@@ -67,6 +67,11 @@ async function run() {
   assert(calls.at(-1).includes('base=USD'));
   assert(calls.at(-1).includes('symbols=xau%2Cxag'));
 
+  const callCountAfterFirstLatest = calls.length;
+  res = await invoke(latest, { method: 'GET', query: { base: 'usd', symbols: 'xau, xag' } });
+  assert.equal(res.statusCode, 200);
+  assert.equal(calls.length, callCountAfterFirstLatest);
+
   res = await invoke(convert, { method: 'GET', query: {} });
   assert.equal(res.statusCode, 400);
 

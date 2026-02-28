@@ -101,3 +101,17 @@ Then redeploy the project (or restart `vercel dev` locally).
 Pass symbols as a comma-separated string (example: `XAU,XAG`).
 
 The proxy now also normalizes common input like `XAU, XAG` and repeated query values into a valid string before forwarding upstream.
+
+
+## API usage limit protection
+
+To help avoid free-trial request caps, the app now reduces upstream calls by default:
+
+- Client auto-refresh runs every 5 minutes (instead of every minute).
+- Client only reloads `symbols` and `news` on first load; later refreshes request `latest` only.
+- Server-side proxy caches responses in-memory:
+  - `symbols`: 24 hours
+  - `news`: 15 minutes
+  - `latest`: 60 seconds
+
+If you still hit trial limits, avoid repeatedly refreshing and reduce the number of open dashboard tabs.

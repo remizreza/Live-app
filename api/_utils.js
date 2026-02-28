@@ -1,4 +1,20 @@
 const API_BASE = 'https://commodities-api.com/api';
+const responseCache = new Map();
+
+function buildCacheKey(endpoint, params = {}) {
+  const entries = Object.entries(params)
+    .filter(([, value]) => value !== undefined && value !== null && value !== '')
+    .sort(([a], [b]) => a.localeCompare(b));
+
+  return `${endpoint}|${JSON.stringify(entries)}`;
+}
+
+function getCacheTtlMs(endpoint) {
+  if (endpoint === 'symbols') return 24 * 60 * 60 * 1000;
+  if (endpoint === 'getNews') return 15 * 60 * 1000;
+  if (endpoint === 'latest') return 60 * 1000;
+  return 0;
+}
 
 function getAccessKey() {
   const accessKey =
@@ -15,6 +31,16 @@ function getAccessKey() {
 }
 
 async function fetchFromCommodities(endpoint, params = {}) {
+  const cacheTtlMs = getCacheTtlMs(endpoint);
+  const cacheKey = buildCacheKey(endpoint, params);
+
+  if (cacheTtlMs > 0) {
+    const cached = responseCache.get(cacheKey);
+    if (cached && cached.expiresAt > Date.now()) {
+      return cached.payload;
+    }
+  }
+
   const accessKey = getAccessKey();
   const url = new URL(`${API_BASE}/${endpoint}`);
   url.searchParams.set('access_key', accessKey);
@@ -33,6 +59,13 @@ async function fetchFromCommodities(endpoint, params = {}) {
     const error = new Error(message);
     error.status = response.status || 502;
     throw error;
+  }
+
+  if (cacheTtlMs > 0) {
+    responseCache.set(cacheKey, {
+      expiresAt: Date.now() + cacheTtlMs,
+      payload: data,
+    });
   }
 
   return data;
@@ -70,9 +103,12 @@ function normalizeSymbols(value) {
 }
 
 module.exports = {
+  buildCacheKey,
   fetchFromCommodities,
+  getCacheTtlMs,
   getQueryValue,
   normalizeSymbols,
   normalizeUpper,
+  responseCache,
   sendJson,
 };
