@@ -14,7 +14,7 @@ A simple dashboard for commodity rates and market headlines.
 1. Push this repo to GitHub/GitLab/Bitbucket.
 2. Import the project in Vercel.
 3. In **Project Settings → Environment Variables**, add:
-   - `COMMODITIES_API_KEY=YOUR_COMMODITIES_API_KEY`
+   - `COMMODITIES_API_KEY=rg9urswepoxfe6e2j896dzl0bn9v82mmpw7ctwou4l8gm6bdzhtdfnm8s5rk`
 4. Deploy.
 
 ## Local run
