@@ -1,18 +1,27 @@
-const { fetchFromCommodities, sendJson } = require('./_utils');
+const { fetchFromCommodities, getQueryValue, normalizeSymbols, sendJson } = require('./_utils');
+
+const DATE_FORMAT = /^\d{4}-\d{2}-\d{2}$/;
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'GET') {
     return sendJson(res, 405, { success: false, error: 'Method not allowed' });
   }
 
-  const date = req.query.date ? String(req.query.date) : undefined;
-  const base = req.query.base ? String(req.query.base).toUpperCase() : undefined;
-  const symbols = req.query.symbols ? String(req.query.symbols) : undefined;
+  const date = getQueryValue(req.query.date);
+  const base = getQueryValue(req.query.base)?.toUpperCase();
+  const symbols = normalizeSymbols(req.query.symbols);
 
   if (!date) {
     return sendJson(res, 400, {
       success: false,
       error: 'Missing required query param: date (YYYY-MM-DD)',
+    });
+  }
+
+  if (!DATE_FORMAT.test(date)) {
+    return sendJson(res, 400, {
+      success: false,
+      error: 'Invalid date format. Use YYYY-MM-DD.',
     });
   }
 

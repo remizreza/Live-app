@@ -1,5 +1,26 @@
 const API_BASE = 'https://commodities-api.com/api';
 
+function getQueryValue(value) {
+  if (Array.isArray(value)) {
+    return value.length > 0 ? String(value[0]) : undefined;
+  }
+  return value !== undefined && value !== null ? String(value) : undefined;
+}
+
+function normalizeSymbols(value) {
+  if (Array.isArray(value)) {
+    return value
+      .map((entry) => String(entry).trim())
+      .filter(Boolean)
+      .join(',');
+  }
+  if (value === undefined || value === null) {
+    return undefined;
+  }
+  const normalized = String(value).trim();
+  return normalized || undefined;
+}
+
 function getAccessKey() {
   const accessKey = process.env.COMMODITIES_API_KEY;
   if (!accessKey) {
@@ -25,7 +46,7 @@ async function fetchFromCommodities(endpoint, params = {}) {
   if (!response.ok || data.success === false) {
     const message = data.error?.info || data.message || `Commodities API request failed (${response.status}).`;
     const error = new Error(message);
-    error.status = response.status || 502;
+    error.status = response.ok && data.success === false ? 502 : response.status || 502;
     throw error;
   }
 
@@ -39,5 +60,7 @@ function sendJson(res, statusCode, payload) {
 
 module.exports = {
   fetchFromCommodities,
+  getQueryValue,
+  normalizeSymbols,
   sendJson,
 };

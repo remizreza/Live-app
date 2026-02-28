@@ -67,6 +67,10 @@ async function run() {
   assert(calls.at(-1).includes('base=USD'));
   assert(calls.at(-1).includes('symbols=xau%2Cxag'));
 
+  res = await invoke(latest, { method: 'GET', query: { symbols: ['XAU', 'XAG'] } });
+  assert.equal(res.statusCode, 200);
+  assert(calls.at(-1).includes('symbols=XAU%2CXAG'));
+
   res = await invoke(convert, { method: 'GET', query: {} });
   assert.equal(res.statusCode, 400);
 
@@ -85,6 +89,10 @@ async function run() {
   assert.equal(res.statusCode, 200);
   assert(calls.at(-1).includes('/2024-02-01?'));
   assert(calls.at(-1).includes('base=USD'));
+
+  res = await invoke(historical, { method: 'GET', query: { date: '../../foo' } });
+  assert.equal(res.statusCode, 400);
+  assert.equal(res.json.error, 'Invalid date format. Use YYYY-MM-DD.');
 
   res = await invoke(timeseries, { method: 'GET', query: { start_date: '2024-01-01' } });
   assert.equal(res.statusCode, 400);
@@ -111,6 +119,24 @@ async function run() {
     assert(error.message.includes('COMMODITIES_API_KEY'));
   }
   assert(threw);
+
+  global.fetch = originalFetch;
+  process.env.COMMODITIES_API_KEY = originalKey;
+
+  process.env.COMMODITIES_API_KEY = 'test_key_123';
+  global.fetch = async () => ({
+    ok: true,
+    status: 200,
+    async json() {
+      return {
+        success: false,
+        error: { info: 'Upstream rejected request' },
+      };
+    },
+  });
+  const errorRes = await invoke(latest, { method: 'GET', query: {} });
+  assert.equal(errorRes.statusCode, 502);
+  assert.equal(errorRes.json.error, 'Upstream rejected request');
 
   global.fetch = originalFetch;
   process.env.COMMODITIES_API_KEY = originalKey;
