@@ -6,9 +6,6 @@ const ratesContainer = document.getElementById('rates');
 const newsList = document.getElementById('newsList');
 const symbolsContainer = document.getElementById('symbols');
 const rateCardTemplate = document.getElementById('rateCardTemplate');
-const AUTO_REFRESH_MS = 5 * 60_000;
-
-let staticDataLoaded = false;
 
 async function fetchJson(endpoint, params = {}) {
   const url = new URL(`${API_BASE}/${endpoint}`, window.location.origin);
@@ -92,27 +89,15 @@ async function loadDashboard() {
     const latestParams = {};
     if (base) latestParams.base = base;
 
-    const latestPromise = fetchJson('latest', latestParams);
-    const symbolsPromise = staticDataLoaded ? Promise.resolve(null) : fetchJson('symbols');
-    const newsPromise = staticDataLoaded ? Promise.resolve(null) : fetchJson('news');
-
-    const [latestData, symbolsData, newsData] = await Promise.all([
-      latestPromise,
-      symbolsPromise,
-      newsPromise,
+    const [symbolsData, latestData, newsData] = await Promise.all([
+      fetchJson('symbols'),
+      fetchJson('latest', latestParams),
+      fetchJson('news'),
     ]);
 
-    if (symbolsData) {
-      renderSymbols(symbolsData.data || symbolsData.symbols || {});
-    }
-
+    renderSymbols(symbolsData.data || symbolsData.symbols || {});
     renderRates(latestData.data?.rates || latestData.rates || {});
-
-    if (newsData) {
-      renderNews(newsData.data || newsData.news || []);
-    }
-
-    staticDataLoaded = true;
+    renderNews(newsData.data || newsData.news || []);
     lastUpdated.textContent = `Last updated: ${new Date().toLocaleString()}`;
   } catch (error) {
     lastUpdated.textContent = `Error: ${error.message}`;
@@ -130,4 +115,4 @@ baseCurrencyInput.addEventListener('keydown', (event) => {
 });
 
 loadDashboard();
-setInterval(loadDashboard, AUTO_REFRESH_MS);
+setInterval(loadDashboard, 60_000);

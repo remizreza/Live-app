@@ -14,7 +14,7 @@ A simple dashboard for commodity rates and market headlines.
 1. Push this repo to GitHub/GitLab/Bitbucket.
 2. Import the project in Vercel.
 3. In **Project Settings → Environment Variables**, add:
-   - `COMMODITIES_API_KEY=YOUR_COMMODITIES_API_KEY`
+   - `COMMODITIES_API_KEY=rg9urswepoxfe6e2j896dzl0bn9v82mmpw7ctwou4l8gm6bdzhtdfnm8s5rk`
 4. Deploy.
 
 ## Local run
@@ -81,37 +81,4 @@ This verifies:
 - GET-only enforcement (`405`) across handlers.
 - Required query validation for `convert`, `historical`, and `timeseries`.
 - Query passthrough and normalization (e.g., `base`, `from`, `to` uppercasing).
-- Missing API key error handling in shared utilities.
-
-
-## Troubleshooting
-
-### `Missing API key environment variable` on refresh
-
-If refresh fails with a missing key message, set one of these environment variables in Vercel project settings:
-
-- `COMMODITIES_API_KEY` (preferred)
-- `COMMODITIES_ACCESS_KEY`
-- `ACCESS_KEY`
-
-Then redeploy the project (or restart `vercel dev` locally).
-
-### `symbols must be a string` error
-
-Pass symbols as a comma-separated string (example: `XAU,XAG`).
-
-The proxy now also normalizes common input like `XAU, XAG` and repeated query values into a valid string before forwarding upstream.
-
-
-## API usage limit protection
-
-To help avoid free-trial request caps, the app now reduces upstream calls by default:
-
-- Client auto-refresh runs every 5 minutes (instead of every minute).
-- Client only reloads `symbols` and `news` on first load; later refreshes request `latest` only.
-- Server-side proxy caches responses in-memory:
-  - `symbols`: 24 hours
-  - `news`: 15 minutes
-  - `latest`: 60 seconds
-
-If you still hit trial limits, avoid repeatedly refreshing and reduce the number of open dashboard tabs.
+- Missing `COMMODITIES_API_KEY` error handling in shared utilities.

@@ -61,16 +61,11 @@ async function run() {
   let res = await invoke(latest, { method: 'POST', query: {} });
   assert.equal(res.statusCode, 405);
 
-  res = await invoke(latest, { method: 'GET', query: { base: 'usd', symbols: 'xau, xag' } });
+  res = await invoke(latest, { method: 'GET', query: { base: 'usd', symbols: 'xau,xag' } });
   assert.equal(res.statusCode, 200);
   assert(calls.at(-1).includes('/latest?'));
   assert(calls.at(-1).includes('base=USD'));
   assert(calls.at(-1).includes('symbols=xau%2Cxag'));
-
-  const callCountAfterFirstLatest = calls.length;
-  res = await invoke(latest, { method: 'GET', query: { base: 'usd', symbols: 'xau, xag' } });
-  assert.equal(res.statusCode, 200);
-  assert.equal(calls.length, callCountAfterFirstLatest);
 
   res = await invoke(convert, { method: 'GET', query: {} });
   assert.equal(res.statusCode, 400);
@@ -86,14 +81,10 @@ async function run() {
   res = await invoke(historical, { method: 'GET', query: {} });
   assert.equal(res.statusCode, 400);
 
-  res = await invoke(historical, {
-    method: 'GET',
-    query: { date: ['2024-02-01'], base: ['usd'], symbols: ['XAU, XAG'] },
-  });
+  res = await invoke(historical, { method: 'GET', query: { date: '2024-02-01', base: 'usd', symbols: 'XAU,XAG' } });
   assert.equal(res.statusCode, 200);
   assert(calls.at(-1).includes('/2024-02-01?'));
   assert(calls.at(-1).includes('base=USD'));
-  assert(calls.at(-1).includes('symbols=XAU%2CXAG'));
 
   res = await invoke(timeseries, { method: 'GET', query: { start_date: '2024-01-01' } });
   assert.equal(res.statusCode, 400);
@@ -117,7 +108,7 @@ async function run() {
     await fetchFromCommodities('latest');
   } catch (error) {
     threw = true;
-    assert(error.message.includes('Missing API key environment variable'));
+    assert(error.message.includes('COMMODITIES_API_KEY'));
   }
   assert(threw);
 

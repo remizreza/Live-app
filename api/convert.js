@@ -1,14 +1,14 @@
-const { fetchFromCommodities, getQueryValue, normalizeUpper, sendJson } = require('./_utils');
+const { fetchFromCommodities, sendJson } = require('./_utils');
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'GET') {
     return sendJson(res, 405, { success: false, error: 'Method not allowed' });
   }
 
-  const from = normalizeUpper(req.query.from);
-  const to = normalizeUpper(req.query.to);
-  const amount = getQueryValue(req.query.amount) ? String(getQueryValue(req.query.amount)).trim() : undefined;
-  const date = getQueryValue(req.query.date) ? String(getQueryValue(req.query.date)).trim() : undefined;
+  const from = req.query.from ? String(req.query.from).toUpperCase() : undefined;
+  const to = req.query.to ? String(req.query.to).toUpperCase() : undefined;
+  const amount = req.query.amount ? String(req.query.amount) : undefined;
+  const date = req.query.date ? String(req.query.date) : undefined;
 
   if (!from || !to || !amount) {
     return sendJson(res, 400, {

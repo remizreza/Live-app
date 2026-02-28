@@ -1,13 +1,13 @@
-const { fetchFromCommodities, getQueryValue, normalizeSymbols, normalizeUpper, sendJson } = require('./_utils');
+const { fetchFromCommodities, sendJson } = require('./_utils');
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'GET') {
     return sendJson(res, 405, { success: false, error: 'Method not allowed' });
   }
 
-  const date = getQueryValue(req.query.date) ? String(getQueryValue(req.query.date)).trim() : undefined;
-  const base = normalizeUpper(req.query.base);
-  const symbols = normalizeSymbols(req.query.symbols);
+  const date = req.query.date ? String(req.query.date) : undefined;
+  const base = req.query.base ? String(req.query.base).toUpperCase() : undefined;
+  const symbols = req.query.symbols ? String(req.query.symbols) : undefined;
 
   if (!date) {
     return sendJson(res, 400, {
