@@ -1,6 +1,4 @@
 const API_BASE = '/api';
-const DEFAULT_SYMBOLS = ['crude', 'diesel', 'naphtha'];
-
 const refreshBtn = document.getElementById('refreshBtn');
 const baseCurrencyInput = document.getElementById('baseCurrency');
 const lastUpdated = document.getElementById('lastUpdated');
@@ -85,15 +83,15 @@ async function loadDashboard() {
   refreshBtn.disabled = true;
   refreshBtn.textContent = 'Loading...';
 
-  const base = (baseCurrencyInput.value || 'USD').trim().toUpperCase();
+  const base = (baseCurrencyInput.value || '').trim().toUpperCase();
 
   try {
+    const latestParams = {};
+    if (base) latestParams.base = base;
+
     const [symbolsData, latestData, newsData] = await Promise.all([
       fetchJson('symbols'),
-      fetchJson('latest', {
-        base,
-        symbols: DEFAULT_SYMBOLS.join(','),
-      }),
+      fetchJson('latest', latestParams),
       fetchJson('news'),
     ]);
 
